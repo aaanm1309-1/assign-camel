@@ -1,0 +1,34 @@
+version: '3.9'
+
+networks:
+  assign-network:
+    driver: bridge
+
+services:
+  postgres-assign:
+    image: postgres
+    container_name: postgres-assign
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "123456"
+    networks:
+      - assign-network
+    command:
+      - "postgres"
+      - "-c"
+      - "wal-level=logical"
+
+  assign-server:
+    container_name: assign-server
+    image: assign-server:latest
+    environment:
+      DB_HOST: "host.docker.internal"
+    ports:
+      - 8081:8081
+    depends_on:
+      - postgres-assign
+    networks:
+      - assign-network
+

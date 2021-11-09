@@ -1,0 +1,34 @@
+
+
+mvn clean install -DskipTests
+
+//docker image build -t assign-server --tag=assign-server:latest .
+
+mvn clean package -Pdocker -DskipTests
+
+docker image build -t assign-server .
+docker image ls
+
+docker network create --driver bridge assign-network
+
+docker volume ls
+docker container rm assign-server --force --volumes
+
+mvn clean install -Pdocker -DskipTests
+
+docker container run --rm  --add-host localhost:172.20.0.2 -it -p 8081:8081 assign-server
+docker container run --rm  -p 8081:8081 -e DB_HOST=postgres_assignone  --network assign-network assign-server
+
+
+docker run --add-host localhost:172.20.0.2 -it -p 8080:8080 assign-server
+
+
+
+mvn clean package -DskipTests
+
+
+mvn clean package -Pdocker -DskipTests
+docker-compose up -d
+
+mvn verify
+mvn test
